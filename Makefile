@@ -5,5 +5,5 @@ fclean:
 	rm -f linear_regression
 
 run: all
-	./linear_regression data.csv
+	./linear_regression data.csv price
 
