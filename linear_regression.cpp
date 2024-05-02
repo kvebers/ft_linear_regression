@@ -20,11 +20,9 @@ vector<string> get_feature_names(string line)
     while(getline(ss, feature, ','))
     {
         feature_names.push_back(feature);
-        cout << feature << endl;
     }
     return feature_names;
 }
-
 
 vector<float> get_feature_data(string line)
 {
@@ -38,9 +36,10 @@ vector<float> get_feature_data(string line)
     return feature_data;
 }
 
-int linear_regresion()
-{
-    ifstream file("data.csv");
+void linear_regresion(string data_file)
+{   
+    ifstream file(data_file);
+    if (!file.good()) { cout << "Error opening file" << endl; exit(1); }
     string line;
     vector<vector<float> > training_data;
     vector<float> feature_data;
@@ -48,19 +47,21 @@ int linear_regresion()
     int i = 0;
     while(getline(file, line))
     {
-        std::cout << line << endl;
         if (i == 0) get_feature_names(line);
         else training_data.push_back(get_feature_data(line));
+        i++;
     }
-    cout << feature_names.size() << endl;
-    return 0;
+    file.close();
+    
 }
 
-
-
-
-int main()
+int main(int argc, char **argv)
 {
-    linear_regresion();
+    if (argc != 3)
+    {
+        cout << "Usage: ./linear_regression <data_file.csv> , <prediction_label>" << endl;
+        return 1;
+    }
+    linear_regresion(argv[2]);
     return 0;
 }
