@@ -13,6 +13,7 @@ using std::getline;
 using std::cout;
 using std::endl;
 using std::distance;
+using std::ofstream;
 
 
 vector<string> get_feature_names(string line)
@@ -53,6 +54,15 @@ void normalize_data(vector<vector<float> > &training_data, int parameter_index)
     }
 }
 
+void output_data(float theta0, float theta1, string file_name)
+{
+    ofstream file(file_name);
+    if (!file.good()) { cout << "Error opening file" << endl; exit(1); }
+    file << "theta0,theta1\n";
+    file << theta0 << "," << theta1 << endl;
+    file.close();
+}
+
 void mse_error(vector<vector<float> > &training_data, int feature_index, int label_index, float theta0, float theta1)
 {
     float mse = 0.0;
@@ -85,7 +95,7 @@ void linear_regression(vector<vector<float> > &training_data, int feature_index,
         theta1 -= learning_rate * temp1 / training_data.size();
     }
     mse_error(training_data, feature_index, label_index, theta0, theta1);
-
+    output_data(theta0, theta1, "training_data.csv");
 }
 
 void setup(string data_file, string prediction_label)

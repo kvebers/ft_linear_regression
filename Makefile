@@ -10,3 +10,8 @@ run: all
 install_python:
 	pip3 install pandas
 	pip3 install scikit-learn
+
+reset_file:
+	g++ reset_file.cpp -o reset_file -std=c++11
+	./reset_file
+	rm -f reset_file
