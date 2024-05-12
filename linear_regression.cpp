@@ -16,6 +16,12 @@ using std::distance;
 using std::ofstream;
 
 
+struct normalize
+{
+    float normalized_value;
+    float real_value;
+};
+
 vector<string> get_feature_names(string line)
 {
     stringstream ss(line);
@@ -39,27 +45,35 @@ vector<float> get_feature_data(string line)
 }
 
 
-void normalize_data(vector<vector<float> > &training_data, int parameter_index)
+normalize normalize_data(vector<vector<float> > &training_data, int parameter_index)
 {
-    if (training_data.size() == 0) return;
-    float max = training_data[0][parameter_index];
+    if (training_data.size() == 0) return {0, 0};
+    normalize max;
+    max.real_value = training_data[0][parameter_index];
+    max.normalized_value = training_data[0][parameter_index] / max.real_value;
     for (int i = 0; i < training_data.size(); i++)
     {
-        if (training_data[i][parameter_index] > max)
-            max = training_data[i][parameter_index];
+        if (training_data[i][parameter_index] > max.normalized_value)
+        {
+            max.real_value = training_data[i][parameter_index];
+            max.normalized_value = training_data[i][parameter_index] / max.real_value;
+        }
     }
     for (int i = 0; i < training_data.size(); i++)
     {
-        training_data[i][parameter_index] /= max;
+        training_data[i][parameter_index] /= max.real_value;
     }
+    return max;
 }
 
-void output_data(float theta0, float theta1, string file_name)
+void output_data(float theta0, float theta1, string file_name, normalize label_normalized, normalize feature_normalized)
 {
     ofstream file(file_name);
     if (!file.good()) { cout << "Error opening file" << endl; exit(1); }
     file << "theta0,theta1\n";
-    file << theta0 << "," << theta1 << endl;
+    float theta0_unormalized = theta0 * label_normalized.real_value - theta1 * (feature_normalized.real_value / label_normalized.real_value);
+    float theta1_unormalized = theta1 * (label_normalized.real_value / feature_normalized.real_value);
+    file << theta0_unormalized << "," << theta1_unormalized << endl;
     file.close();
 }
 
@@ -77,7 +91,7 @@ void mse_error(vector<vector<float> > &training_data, int feature_index, int lab
 }
 
 
-void linear_regression(vector<vector<float> > &training_data, int feature_index, int label_index)
+void linear_regression(vector<vector<float> > &training_data, int feature_index, int label_index, normalize label_normalized, normalize feature_normalized)
 {
     float theta0 = 0.0 , theta1 = 0.0;
     float learning_rate = 0.001;
@@ -95,7 +109,7 @@ void linear_regression(vector<vector<float> > &training_data, int feature_index,
         theta1 -= learning_rate * temp1 / training_data.size();
     }
     mse_error(training_data, feature_index, label_index, theta0, theta1);
-    output_data(theta0, theta1, "training_data.csv");
+    output_data(theta0, theta1, "training_data.csv", label_normalized, feature_normalized);
 }
 
 void setup(string data_file, string prediction_label)
@@ -118,17 +132,10 @@ void setup(string data_file, string prediction_label)
     auto check_label = find(feature_names.begin(), feature_names.end(), prediction_label);
     if (check_label == feature_names.end()) exit(1);
     else index = distance(feature_names.begin(), check_label);
-    normalize_data(training_data, index);
-    normalize_data(training_data, index ^ 1);
-    linear_regression(training_data, index ^ 1, index);
+    normalize label_normalized = normalize_data(training_data, index);
+    normalize feature_normalized = normalize_data(training_data, index ^ 1);
+    linear_regression(training_data, index ^ 1, index, label_normalized, feature_normalized);
 }
-    // bool a = true;
-    // bool b = false;
-    // cout << (a ^ a) << endl; // Output: 0 (false)
-    // cout << (a ^ b) << endl; // Output: 1 (true)
-    // cout << (b ^ a) << endl; // Output: 1 (true)
-    // cout << (b ^ b) << endl; // Output: 0 (false)
-    //4. **Bitwise Operators**: `&` (bitwise AND), `|` (bitwise OR), `^` (bitwise XOR), `~` (bitwise NOT), `<<` (left shift), `>>` (right shift)
 
 int main(int argc, char **argv)
 {
@@ -145,4 +152,3 @@ int main(int argc, char **argv)
     setup(argv[1], argv[2]);
     return 0;
 }
-

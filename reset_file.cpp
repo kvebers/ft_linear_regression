@@ -19,6 +19,6 @@ void output_data(float theta0, float theta1, string file_name)
 
 int main()
 {
-    output_data(0, 0, "output.csv");
+    output_data(0, 0, "training_data.csv");
     return 0;
 }
