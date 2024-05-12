@@ -7,3 +7,6 @@ fclean:
 run: all
 	./linear_regression data.csv price
 
+install_python:
+	pip3 install pandas
+	pip3 install scikit-learn
