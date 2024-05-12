@@ -14,3 +14,6 @@ reset_file:
 	./reset_file
 	rm -f reset_file
 
+install_python:
+	pip3 install pandas
+	pip3 install matplotlib
