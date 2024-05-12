@@ -53,11 +53,25 @@ void normalize_data(vector<vector<float> > &training_data, int parameter_index)
     }
 }
 
+void mse_error(vector<vector<float> > &training_data, int feature_index, int label_index, float theta0, float theta1)
+{
+    float mse = 0.0;
+    for (int i = 0; i < training_data.size(); i++)
+    {
+        float predicted_value = theta0 + theta1 * training_data[i][feature_index];
+        float error = predicted_value - training_data[i][label_index];
+        mse += error * error;
+    }
+    mse /= training_data.size();
+    cout << "Mean Squared Error: " << mse << endl;
+}
+
+
 void linear_regression(vector<vector<float> > &training_data, int feature_index, int label_index)
 {
     float theta0 = 0.0 , theta1 = 0.0;
-    float learning_rate = 1;
-    int epochs = 1;
+    float learning_rate = 0.001;
+    int epochs = 20000;
     for (int j = 0; j < epochs; j++)
     {
         float temp0 = 0.0, temp1 = 0.0;
@@ -70,7 +84,8 @@ void linear_regression(vector<vector<float> > &training_data, int feature_index,
         theta0 -= learning_rate * temp0 / training_data.size();
         theta1 -= learning_rate * temp1 / training_data.size();
     }
-    cout << theta0 << " " << theta1 << endl;
+    mse_error(training_data, feature_index, label_index, theta0, theta1);
+
 }
 
 void setup(string data_file, string prediction_label)
@@ -95,7 +110,7 @@ void setup(string data_file, string prediction_label)
     else index = distance(feature_names.begin(), check_label);
     normalize_data(training_data, index);
     normalize_data(training_data, index ^ 1);
-    linear_regression(training_data, index^1, index);
+    linear_regression(training_data, index ^ 1, index);
 }
     // bool a = true;
     // bool b = false;
